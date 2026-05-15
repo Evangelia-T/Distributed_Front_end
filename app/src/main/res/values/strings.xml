@@ -1,3 +1,54 @@
 <resources>
-    <string name="app_name">Distributed_Front_end</string>
+    <string name="app_name">Distributed Front End</string>
+    <string name="player_console_title">Player Console</string>
+    <string name="status_ready">Ready to connect to Master.</string>
+    <string name="connection_section">Connection</string>
+    <string name="balance_section">Player balance</string>
+    <string name="search_section">Search filters</string>
+    <string name="results_section">Available games</string>
+    <string name="default_master_host">10.0.2.2</string>
+    <string name="default_master_port">5000</string>
+    <string name="host_hint">Master host</string>
+    <string name="port_hint">Master port</string>
+    <string name="player_id_hint">Player id</string>
+    <string name="provider_hint">Provider name (optional)</string>
+    <string name="balance_amount_hint">Amount to add</string>
+    <string name="add_balance_button">Add balance</string>
+    <string name="show_all_games_button">Show available games</string>
+    <string name="search_button">Search games</string>
+    <string name="no_results">Search results will appear here.</string>
+    <string name="bet_amount_hint">Bet amount</string>
+    <string name="place_bet_button">Place bet</string>
+    <string name="rate_game_button">Rate</string>
+
+    <string-array name="risk_filter_options">
+        <item>Any risk</item>
+        <item>Low</item>
+        <item>Medium</item>
+        <item>High</item>
+    </string-array>
+
+    <string-array name="bet_category_filter_options">
+        <item>Any bet category</item>
+        <item>$</item>
+        <item>$$</item>
+        <item>$$$</item>
+    </string-array>
+
+    <string-array name="star_filter_options">
+        <item>Any stars</item>
+        <item>1+ stars</item>
+        <item>2+ stars</item>
+        <item>3+ stars</item>
+        <item>4+ stars</item>
+        <item>5 stars</item>
+    </string-array>
+
+    <string-array name="rating_options">
+        <item>1 star</item>
+        <item>2 stars</item>
+        <item>3 stars</item>
+        <item>4 stars</item>
+        <item>5 stars</item>
+    </string-array>
 </resources>

@@ -1,23 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="20dp">
+    android:background="@color/screen_background"
+    android:fillViewport="true">
 
-    <Button
-        android:id="@+id/connectButton"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Connect To Master" />
+        android:orientation="vertical"
+        android:padding="20dp">
 
-    <TextView
-        android:id="@+id/resultText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Result will appear here"
-        android:textSize="18sp"
-        android:paddingTop="20dp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/player_console_title"
+            android:textColor="@color/text_primary"
+            android:textSize="28sp"
+            android:textStyle="bold" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/status_ready"
+            android:textColor="@color/text_secondary"
+            android:textSize="15sp" />
+
+        <TextView
+            style="@style/SectionLabel"
+            android:text="@string/connection_section" />
+
+        <EditText
+            android:id="@+id/hostInput"
+            style="@style/FormInput"
+            android:hint="@string/host_hint"
+            android:inputType="textUri"
+            android:singleLine="true"
+            android:text="@string/default_master_host" />
+
+        <EditText
+            android:id="@+id/portInput"
+            style="@style/FormInput"
+            android:hint="@string/port_hint"
+            android:inputType="number"
+            android:singleLine="true"
+            android:text="@string/default_master_port" />
+
+        <EditText
+            android:id="@+id/playerIdInput"
+            style="@style/FormInput"
+            android:hint="@string/player_id_hint"
+            android:inputType="text"
+            android:singleLine="true" />
+
+        <TextView
+            style="@style/SectionLabel"
+            android:text="@string/balance_section" />
+
+        <EditText
+            android:id="@+id/balanceAmountInput"
+            style="@style/FormInput"
+            android:hint="@string/balance_amount_hint"
+            android:inputType="numberDecimal"
+            android:singleLine="true" />
+
+        <Button
+            android:id="@+id/addBalanceButton"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="@string/add_balance_button" />
+
+        <TextView
+            style="@style/SectionLabel"
+            android:text="@string/search_section" />
+
+        <Button
+            android:id="@+id/showAllGamesButton"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginBottom="12dp"
+            android:text="@string/show_all_games_button" />
+
+        <EditText
+            android:id="@+id/providerInput"
+            style="@style/FormInput"
+            android:hint="@string/provider_hint"
+            android:inputType="text"
+            android:singleLine="true" />
+
+        <Spinner
+            android:id="@+id/riskSpinner"
+            style="@style/FormSpinner"
+            android:entries="@array/risk_filter_options" />
+
+        <Spinner
+            android:id="@+id/betCategorySpinner"
+            style="@style/FormSpinner"
+            android:entries="@array/bet_category_filter_options" />
+
+        <Spinner
+            android:id="@+id/starsSpinner"
+            style="@style/FormSpinner"
+            android:entries="@array/star_filter_options" />
+
+        <Button
+            android:id="@+id/searchButton"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/search_button" />
+
+        <TextView
+            style="@style/SectionLabel"
+            android:text="@string/results_section" />
+
+        <LinearLayout
+            android:id="@+id/gamesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <TextView
+            android:id="@+id/emptyText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/result_panel_background"
+            android:padding="16dp"
+            android:text="@string/no_results"
+            android:textColor="@color/text_secondary"
+            android:textSize="15sp" />
+
+    </LinearLayout>
+</ScrollView>

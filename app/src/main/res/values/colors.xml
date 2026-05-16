@@ -9,4 +9,10 @@
     <color name="text_secondary">#5F6B7A</color>
     <color name="success">#147D45</color>
     <color name="error">#B42318</color>
+    <color name="status_info_background">#EAF0FF</color>
+    <color name="status_info_border">#C6D4F6</color>
+    <color name="status_success_background">#EAF7EF</color>
+    <color name="status_success_border">#B8E0C6</color>
+    <color name="status_error_background">#FDECEB</color>
+    <color name="status_error_border">#F4B8B2</color>
 </resources>

@@ -14,11 +14,19 @@
     <string name="provider_hint">Provider name (optional)</string>
     <string name="balance_amount_hint">Amount to add</string>
     <string name="add_balance_button">Add balance</string>
+    <string name="balance_added_message">Added %1$s to %2$s.</string>
+    <string name="show_player_stats_button">Show player statistics</string>
+    <string name="player_stats_title">Player statistics: %1$s</string>
+    <string name="no_player_stats">No player statistics were returned by Master.</string>
     <string name="show_all_games_button">Show available games</string>
     <string name="search_button">Search games</string>
     <string name="no_results">Search results will appear here.</string>
     <string name="bet_amount_hint">Bet amount</string>
     <string name="place_bet_button">Place bet</string>
+    <string name="bet_success_message">Bet placed on %1$s for %2$s.</string>
+    <string name="bet_error_message">Bet could not be placed on %1$s.</string>
+    <string name="rating_success_message">Thanks. Your %1$d-star rating for %2$s was saved.</string>
+    <string name="rating_error_message">Rating could not be saved for %1$s.</string>
     <string name="rate_game_button">Rate</string>
 
     <string-array name="risk_filter_options">

@@ -68,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
         playerStatsPanel = findViewById(R.id.playerStatsPanel);
         playerStatsContainer = findViewById(R.id.playerStatsContainer);
         gamesContainer = findViewById(R.id.gamesContainer);
-        showStatus(getString(R.string.status_ready), StatusTone.INFO);
 
         addBalanceButton.setOnClickListener(view -> addBalance());
         showPlayerStatsButton.setOnClickListener(view -> showPlayerStats());
@@ -426,7 +425,7 @@ public class MainActivity extends AppCompatActivity {
         badge.setTextColor(Color.WHITE);
         badge.setTextSize(15);
         badge.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-        badge.setBackground(roundedBackground(Color.rgb(36, 87, 197), dp(8), 0, 0));
+        badge.setBackground(roundedBackground(getColor(R.color.primary_action), dp(8), 0, 0));
         badge.setLayoutParams(new LinearLayout.LayoutParams(dp(48), dp(48)));
         return badge;
     }
@@ -553,11 +552,11 @@ public class MainActivity extends AppCompatActivity {
 
         switch (riskLevel.trim().toLowerCase(Locale.US)) {
             case "high":
-                return Color.rgb(180, 35, 24);
+                return Color.rgb(229, 72, 77);
             case "medium":
-                return Color.rgb(181, 71, 8);
+                return Color.rgb(217, 119, 6);
             default:
-                return Color.rgb(20, 125, 69);
+                return Color.rgb(22, 163, 74);
         }
     }
 
@@ -693,6 +692,7 @@ public class MainActivity extends AppCompatActivity {
         statusText.setText(message);
         statusText.setTextColor(textColor);
         statusText.setBackground(roundedBackground(backgroundColor, dp(8), borderColor, 1));
+        statusText.setVisibility(View.VISIBLE);
     }
 
     private String withBackendDetail(String friendlyMessage, String backendMessage) {

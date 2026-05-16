@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Distributed Front End</string>
-    <string name="player_console_title">Player Console</string>
+    <string name="player_console_title">Lucky Player Hub</string>
+    <string name="player_console_subtitle">Play smarter. Win brighter.</string>
     <string name="status_ready">Ready to connect to Master.</string>
     <string name="connection_section">Connection</string>
     <string name="balance_section">Player balance</string>

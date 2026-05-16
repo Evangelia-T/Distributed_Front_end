@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import common.GameInfo;
 import common.Request;
@@ -32,10 +33,14 @@ public class MainActivity extends AppCompatActivity {
     private Spinner betCategorySpinner;
     private Spinner starsSpinner;
     private Button addBalanceButton;
+    private Button showPlayerStatsButton;
     private Button showAllGamesButton;
     private Button searchButton;
     private TextView statusText;
     private TextView emptyText;
+    private TextView playerStatsTitle;
+    private LinearLayout playerStatsPanel;
+    private LinearLayout playerStatsContainer;
     private LinearLayout gamesContainer;
 
     private final MasterClient masterClient = new MasterClient();
@@ -54,13 +59,19 @@ public class MainActivity extends AppCompatActivity {
         betCategorySpinner = findViewById(R.id.betCategorySpinner);
         starsSpinner = findViewById(R.id.starsSpinner);
         addBalanceButton = findViewById(R.id.addBalanceButton);
+        showPlayerStatsButton = findViewById(R.id.showPlayerStatsButton);
         showAllGamesButton = findViewById(R.id.showAllGamesButton);
         searchButton = findViewById(R.id.searchButton);
         statusText = findViewById(R.id.statusText);
         emptyText = findViewById(R.id.emptyText);
+        playerStatsTitle = findViewById(R.id.playerStatsTitle);
+        playerStatsPanel = findViewById(R.id.playerStatsPanel);
+        playerStatsContainer = findViewById(R.id.playerStatsContainer);
         gamesContainer = findViewById(R.id.gamesContainer);
+        showStatus(getString(R.string.status_ready), StatusTone.INFO);
 
         addBalanceButton.setOnClickListener(view -> addBalance());
+        showPlayerStatsButton.setOnClickListener(view -> showPlayerStats());
         showAllGamesButton.setOnClickListener(view -> showAvailableGames());
         searchButton.setOnClickListener(view -> searchGames());
     }
@@ -107,14 +118,53 @@ public class MainActivity extends AppCompatActivity {
             try {
                 Response response = masterClient.send(settings.host, settings.port, request);
                 runOnUiThread(() -> {
-                    setLoading(false, response.getMessage());
-                    statusText.setTextColor(getColor(response.isSuccess() ? R.color.success : R.color.error));
+                    setActionButtonsEnabled(true);
                     if (response.isSuccess()) {
+                        showStatus(withBackendDetail(
+                                getString(R.string.balance_added_message, formatMoney(amount), playerId),
+                                response.getMessage()
+                        ), StatusTone.SUCCESS);
                         balanceAmountInput.setText("");
+                    } else {
+                        showStatus(withBackendDetail("Balance could not be added.", response.getMessage()), StatusTone.ERROR);
                     }
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> showError("Add balance failed: " + e.getMessage()));
+            }
+        }).start();
+    }
+
+    private void showPlayerStats() {
+        showPlayerStats(true);
+    }
+
+    private void showPlayerStats(boolean showLoading) {
+        ConnectionSettings settings = readConnectionSettings();
+        if (settings == null) {
+            return;
+        }
+
+        String playerId = readRequiredText(playerIdInput, "Player id is required.");
+        if (playerId == null) {
+            return;
+        }
+
+        Request request = Request.playerStats(playerId);
+        if (showLoading) {
+            setLoading(true, "Loading statistics for " + playerId + "...");
+        }
+
+        new Thread(() -> {
+            try {
+                Response response = masterClient.send(settings.host, settings.port, request);
+                runOnUiThread(() -> showPlayerStatsResponse(playerId, response, showLoading));
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    if (showLoading) {
+                        showError("Loading player statistics failed: " + e.getMessage());
+                    }
+                });
             }
         }).start();
     }
@@ -171,8 +221,19 @@ public class MainActivity extends AppCompatActivity {
             try {
                 Response response = masterClient.send(settings.host, settings.port, request);
                 runOnUiThread(() -> {
-                    setLoading(false, response.getMessage());
-                    statusText.setTextColor(getColor(response.isSuccess() ? R.color.success : R.color.error));
+                    setActionButtonsEnabled(true);
+                    if (response.isSuccess()) {
+                        showStatus(withBackendDetail(
+                                getString(R.string.bet_success_message, game.getGameName(), formatMoney(amount)),
+                                response.getMessage()
+                        ), StatusTone.SUCCESS);
+                        amountInput.setText("");
+                    } else {
+                        showStatus(withBackendDetail(
+                                getString(R.string.bet_error_message, game.getGameName()),
+                                response.getMessage()
+                        ), StatusTone.ERROR);
+                    }
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> showError("Bet failed: " + e.getMessage()));
@@ -199,8 +260,18 @@ public class MainActivity extends AppCompatActivity {
             try {
                 Response response = masterClient.send(settings.host, settings.port, request);
                 runOnUiThread(() -> {
-                    setLoading(false, response.getMessage());
-                    statusText.setTextColor(getColor(response.isSuccess() ? R.color.success : R.color.error));
+                    setActionButtonsEnabled(true);
+                    if (response.isSuccess()) {
+                        showStatus(withBackendDetail(
+                                getString(R.string.rating_success_message, rating, game.getGameName()),
+                                response.getMessage()
+                        ), StatusTone.SUCCESS);
+                    } else {
+                        showStatus(withBackendDetail(
+                                getString(R.string.rating_error_message, game.getGameName()),
+                                response.getMessage()
+                        ), StatusTone.ERROR);
+                    }
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> showError("Rating failed: " + e.getMessage()));
@@ -209,8 +280,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showGamesResponse(Response response, String emptyMessage) {
-        setLoading(false, response.getMessage());
-        statusText.setTextColor(getColor(response.isSuccess() ? R.color.success : R.color.error));
+        setActionButtonsEnabled(true);
+        showStatus(response.getMessage(), response.isSuccess() ? StatusTone.SUCCESS : StatusTone.ERROR);
         gamesContainer.removeAllViews();
 
         List<GameInfo> games = response.getGames();
@@ -224,6 +295,31 @@ public class MainActivity extends AppCompatActivity {
         for (GameInfo game : games) {
             gamesContainer.addView(createGameView(game));
         }
+    }
+
+    private void showPlayerStatsResponse(String playerId, Response response, boolean updateStatus) {
+        if (updateStatus) {
+            setActionButtonsEnabled(true);
+            showStatus(response.getMessage(), response.isSuccess() ? StatusTone.SUCCESS : StatusTone.ERROR);
+        }
+
+        if (!response.isSuccess()) {
+            return;
+        }
+
+        playerStatsTitle.setText(getString(R.string.player_stats_title, playerId));
+        playerStatsContainer.removeAllViews();
+
+        Map<String, Double> totals = response.getTotals();
+        if (totals == null || totals.isEmpty()) {
+            playerStatsContainer.addView(createMetaRow("Status", getString(R.string.no_player_stats)));
+        } else {
+            for (Map.Entry<String, Double> entry : totals.entrySet()) {
+                playerStatsContainer.addView(createMetaRow(formatStatLabel(entry.getKey()), formatStatValue(entry.getKey(), entry.getValue())));
+            }
+        }
+
+        playerStatsPanel.setVisibility(View.VISIBLE);
     }
 
     private View createGameView(GameInfo game) {
@@ -371,6 +467,75 @@ public class MainActivity extends AppCompatActivity {
         return row;
     }
 
+    private String formatStatLabel(String key) {
+        if (key == null || key.trim().isEmpty()) {
+            return "Value";
+        }
+
+        String normalized = key.trim().toLowerCase(Locale.US);
+        switch (normalized) {
+            case "balance":
+                return "Balance";
+            case "total_bets":
+            case "totalbets":
+            case "bets":
+                return "Total bets";
+            case "total_won":
+            case "totalwon":
+            case "wins":
+                return "Total won";
+            case "total_lost":
+            case "totallost":
+            case "losses":
+                return "Total lost";
+            case "net_profit":
+            case "netprofit":
+            case "profit":
+                return "Net profit";
+            case "games_played":
+            case "gamesplayed":
+                return "Games played";
+            default:
+                return titleCase(key.replace('_', ' '));
+        }
+    }
+
+    private String formatStatValue(String key, Double value) {
+        if (value == null) {
+            return "-";
+        }
+
+        String normalized = key == null ? "" : key.trim().toLowerCase(Locale.US);
+        if (normalized.contains("count")
+                || normalized.contains("bets")
+                || normalized.contains("games")
+                || value == Math.rint(value) && !normalized.contains("balance")
+                && !normalized.contains("won") && !normalized.contains("lost")
+                && !normalized.contains("profit")) {
+            return String.format(Locale.US, "%.0f", value);
+        }
+
+        return formatMoney(value);
+    }
+
+    private String titleCase(String value) {
+        String[] parts = value.trim().split("\\s+");
+        StringBuilder result = new StringBuilder();
+        for (String part : parts) {
+            if (part.isEmpty()) {
+                continue;
+            }
+            if (result.length() > 0) {
+                result.append(' ');
+            }
+            result.append(part.substring(0, 1).toUpperCase(Locale.US));
+            if (part.length() > 1) {
+                result.append(part.substring(1).toLowerCase(Locale.US));
+            }
+        }
+        return result.length() == 0 ? "Value" : result.toString();
+    }
+
     private GradientDrawable roundedBackground(int fillColor, int radius, int strokeColor, int strokeWidth) {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setColor(fillColor);
@@ -486,20 +651,71 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setLoading(boolean loading, String message) {
-        addBalanceButton.setEnabled(!loading);
-        showAllGamesButton.setEnabled(!loading);
-        searchButton.setEnabled(!loading);
-        statusText.setText(message);
-        statusText.setTextColor(getColor(R.color.text_secondary));
+        setActionButtonsEnabled(!loading);
+        showStatus(message, StatusTone.INFO);
     }
 
     private void showError(String message) {
-        setLoading(false, message);
-        statusText.setTextColor(getColor(R.color.error));
+        setActionButtonsEnabled(true);
+        showStatus(message, StatusTone.ERROR);
+    }
+
+    private void setActionButtonsEnabled(boolean enabled) {
+        addBalanceButton.setEnabled(enabled);
+        showPlayerStatsButton.setEnabled(enabled);
+        showAllGamesButton.setEnabled(enabled);
+        searchButton.setEnabled(enabled);
+    }
+
+    private void showStatus(String message, StatusTone tone) {
+        int textColor;
+        int backgroundColor;
+        int borderColor;
+
+        switch (tone) {
+            case SUCCESS:
+                textColor = getColor(R.color.success);
+                backgroundColor = getColor(R.color.status_success_background);
+                borderColor = getColor(R.color.status_success_border);
+                break;
+            case ERROR:
+                textColor = getColor(R.color.error);
+                backgroundColor = getColor(R.color.status_error_background);
+                borderColor = getColor(R.color.status_error_border);
+                break;
+            default:
+                textColor = getColor(R.color.text_secondary);
+                backgroundColor = getColor(R.color.status_info_background);
+                borderColor = getColor(R.color.status_info_border);
+                break;
+        }
+
+        statusText.setText(message);
+        statusText.setTextColor(textColor);
+        statusText.setBackground(roundedBackground(backgroundColor, dp(8), borderColor, 1));
+    }
+
+    private String withBackendDetail(String friendlyMessage, String backendMessage) {
+        if (backendMessage == null || backendMessage.trim().isEmpty()) {
+            return friendlyMessage;
+        }
+
+        String trimmed = backendMessage.trim();
+        if (friendlyMessage.equals(trimmed)) {
+            return friendlyMessage;
+        }
+
+        return friendlyMessage + "\n" + trimmed;
     }
 
     private int dp(int value) {
         return (int) (value * getResources().getDisplayMetrics().density);
+    }
+
+    private enum StatusTone {
+        INFO,
+        SUCCESS,
+        ERROR
     }
 
     private static class ConnectionSettings {
